@@ -3,6 +3,7 @@ import { Slider } from "@/components/ui/slider";
 import { Play, Pause } from "lucide-react";
 
 interface Props {
+  todayMs: number;
   daysBack: number; // 0 = today
   maxDays: number;
   onChange: (daysBack: number) => void;
@@ -10,7 +11,7 @@ interface Props {
 
 const DAY = 86400000;
 
-export default function TimeSlider({ daysBack, maxDays, onChange }: Props) {
+export default function TimeSlider({ todayMs, daysBack, maxDays, onChange }: Props) {
   const [playing, setPlaying] = useState(false);
   const ref = useRef({ daysBack, onChange });
   ref.current = { daysBack, onChange };
@@ -29,7 +30,7 @@ export default function TimeSlider({ daysBack, maxDays, onChange }: Props) {
     return () => clearInterval(id);
   }, [playing]);
 
-  const date = new Date(Date.now() - daysBack * DAY);
+  const date = new Date(todayMs - daysBack * DAY);
 
   return (
     <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-[min(680px,72vw)] rounded-xl border border-slate-800 bg-[#0a111c]/90 backdrop-blur-md px-5 py-3 z-10">
@@ -55,7 +56,7 @@ export default function TimeSlider({ daysBack, maxDays, onChange }: Props) {
       </div>
       <div className="flex justify-between items-center mt-1.5 px-12">
         <span className="text-[10px] text-slate-500 font-mono">
-          {new Date(Date.now() - maxDays * DAY).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
+          {new Date(todayMs - maxDays * DAY).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
         </span>
         <span className="text-xs font-mono tracking-wider text-sky-300">
           {daysBack === 0 ? "TODAY · " : ""}

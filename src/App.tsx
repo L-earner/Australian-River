@@ -18,6 +18,7 @@ function localDateKey(date: Date): string {
 }
 
 function App() {
+  const [todayMs] = useState(() => Date.now());
   const [daysBack, setDaysBack] = useState(0);
   const [mode, setMode] = useState<MapMode>("flow");
   const [river, setRiver] = useState<River | null>(null);
@@ -26,7 +27,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const date = useMemo(() => new Date(Date.now() - daysBack * 86400000), [daysBack]);
+  const date = useMemo(() => new Date(todayMs - daysBack * 86400000), [todayMs, daysBack]);
   const dateKey = useMemo(() => localDateKey(date), [date]);
 
   useEffect(() => {
@@ -78,7 +79,7 @@ function App() {
           onClose={() => setDamId(null)}
         />
       )}
-      <TimeSlider daysBack={daysBack} maxDays={MAX_DAYS} onChange={setDaysBack} />
+      <TimeSlider todayMs={todayMs} daysBack={daysBack} maxDays={MAX_DAYS} onChange={setDaysBack} />
     </div>
   );
 }

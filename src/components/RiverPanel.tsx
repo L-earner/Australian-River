@@ -47,26 +47,31 @@ interface Props {
 }
 
 export default function RiverPanel({ river, date, dateKey, summary, onClose }: Props) {
-  const [detail, setDetail] = useState<RiverDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const requestKey = `${river.id}:${dateKey}`;
+  const [request, setRequest] = useState<{
+    key: string;
+    detail: RiverDetail | null;
+    error: string | null;
+  }>({ key: "", detail: null, error: null });
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
-    setError(null);
     void getRiverDetail(river.id, dateKey, controller.signal)
-      .then(setDetail)
+      .then((detail) => setRequest({ key: requestKey, detail, error: null }))
       .catch((requestError: unknown) => {
         if (requestError instanceof DOMException && requestError.name === "AbortError") return;
-        setError(requestError instanceof Error ? requestError.message : "Unable to load river history.");
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+        setRequest({
+          key: requestKey,
+          detail: null,
+          error: requestError instanceof Error ? requestError.message : "Unable to load river history.",
+        });
       });
     return () => controller.abort();
-  }, [river.id, dateKey]);
+  }, [river.id, dateKey, requestKey]);
 
+  const loading = request.key !== requestKey;
+  const detail = loading ? null : request.detail;
+  const error = loading ? null : request.error;
   const observation = detail?.summary ?? summary;
   const meta = observation?.condition ? CONDITION_META[observation.condition] : null;
   const color = meta?.color ?? "#64748b";
