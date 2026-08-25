@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause } from "lucide-react";
 
@@ -13,22 +13,20 @@ const DAY = 86400000;
 
 export default function TimeSlider({ todayMs, daysBack, maxDays, onChange }: Props) {
   const [playing, setPlaying] = useState(false);
-  const ref = useRef({ daysBack, onChange });
-  ref.current = { daysBack, onChange };
 
   useEffect(() => {
     if (!playing) return;
     const id = setInterval(() => {
-      const next = ref.current.daysBack - 1;
+      const next = daysBack - 1;
       if (next <= 0) {
-        ref.current.onChange(0);
+        onChange(0);
         setPlaying(false);
       } else {
-        ref.current.onChange(next);
+        onChange(next);
       }
     }, 130);
     return () => clearInterval(id);
-  }, [playing]);
+  }, [playing, daysBack, onChange]);
 
   const date = new Date(todayMs - daysBack * DAY);
 
