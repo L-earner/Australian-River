@@ -274,6 +274,12 @@ function matrixToRows(payload: unknown): MatrixRow[] {
   );
 }
 
+export function parseWaterDataNumber(value: string | number | null | undefined): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 async function getTimeseriesList(
   parameter: string,
   stationNumbers: string[],
@@ -317,9 +323,8 @@ async function getTimeseriesValues(
     const qualityIndex = columns.indexOf("Quality Code");
     const values = item.data
       .map((row) => {
-        const rawValue = row[valueIndex];
-        const value = typeof rawValue === "number" ? rawValue : Number(rawValue);
-        if (!Number.isFinite(value)) return null;
+        const value = parseWaterDataNumber(row[valueIndex]);
+        if (value === null) return null;
         const rawQuality = row[qualityIndex];
         const quality = rawQuality === null ? null : Number(rawQuality);
         return {
